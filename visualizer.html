@@ -166,6 +166,7 @@
 
         // Process Layer 0 (Physical)
         const racks = l0.datacenter.racks;
+        const cabling = l0.datacenter.cabling || [];
         
         // Datacenter Node (Center)
         fullNodes.push({
@@ -233,6 +234,31 @@
             }
         });
 
+        // Process Physical Cabling (Layer 0 Links)
+        cabling.forEach(link => {
+            const src = link.linkEndpointA.cpDeviceSerial;
+            const dst = link.linkEndpointB.cpDeviceSerial;
+            
+            // Determine Color based on Cable Type
+            let color = '#555'; // Default
+            if (link.linkCableType === 'FiberOM4') color = '#cc00cc'; // Purple/Magenta for Fiber
+            else if (link.linkCableType === 'Twinax_DAC') color = '#333'; // Dark Grey for Copper
+            else if (link.linkCableType === 'Cat6' || link.linkCableType === 'Cat6a') color = '#0000cc'; // Blue for Eth
+
+            // Determine Width based on speed/importance (heuristic)
+            const width = 1.5;
+
+            fullLinks.push({
+                source: src,
+                target: dst,
+                color: color,
+                width: width,
+                layer: 0,
+                curvature: 0.2, // Curve them slightly to see distinct connections
+                tooltip: `<b>Link: ${link.linkId}</b><br>Type: ${link.linkCableType}<br>Length: ${link.linkLengthMeters}m`
+            });
+        });
+
         // Process Layer 1 (OS/Software)
         l1.forEach(host => {
             const hwRef = host.hostHardwareRef;
@@ -268,9 +294,11 @@
         // Force settings
         Graph.d3Force('link').distance(link => {
             if (link.source.group === 'host' || link.target.group === 'host') return 200; 
-            return 80; // Spread out more
+            if (link.layer === 0 && link.source.group !== 'dc') return 100; // Physical cables loose
+            return 80; 
         });
-        Graph.d3Force('charge').strength(-150); // Less repulsion to keep it tighter but structured
+        Graph.d3Force('charge').strength(-300); // Increase repulsion to spread full mesh
+        Graph.linkCurvature('curvature'); // Enable curvature
     }
 
     function updateVisibility() {

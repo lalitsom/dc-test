@@ -119,12 +119,42 @@ data ISP = ISP
     , ispDemarcationPoint :: UnitID
     } deriving (Show, Eq)
 
+-- | Identifies a specific port on a device
+data PortIdentifier
+    = PortByNumber Word32 -- e.g. Switch Port 1
+    | PortByMac Text      -- e.g. Server NIC
+    deriving (Show, Eq)
+
+-- | A connection endpoint
+data ConnectionPoint = ConnectionPoint
+    { cpDeviceSerial :: SerialNumber
+    , cpPort :: PortIdentifier
+    } deriving (Show, Eq)
+
+data CableType
+    = Cat6
+    | Cat6a
+    | FiberOM3
+    | FiberOM4
+    | Twinax_DAC
+    deriving (Show, Eq)
+
+-- | Represents a physical cable connecting two devices
+data Link = Link
+    { linkId :: Text
+    , linkEndpointA :: ConnectionPoint
+    , linkEndpointB :: ConnectionPoint
+    , linkCableType :: CableType
+    , linkLengthMeters :: Float
+    } deriving (Show, Eq)
+
 -- | The Datacenter Facility
 data Datacenter = Datacenter
     { dcName :: Text
     , dcLocation :: Text
     , dcRacks :: [Rack]
     , dcIsps :: [ISP]
+    , dcCabling :: [Link] -- Physical wiring
     , dcTotalPowerCapacity :: Wattage
     } deriving (Show, Eq)
 

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Datacenter Infrastructure Visualizer 3D</title>
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/3d-force-graph/dist/3d-force-graph.min.js"></script>
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; color: #333; overflow: hidden; }
+        #graph { width: 100vw; height: 100vh; }
+        #ui-layer {
+            position: absolute; top: 20px; left: 20px; z-index: 99;
+            background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;
+            border: 1px solid #ccc; pointer-events: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { margin: 0 0 10px 0; font-size: 20px; color: #0066cc; }
+        .instructions { font-size: 13px; color: #666; margin-bottom: 15px; }
+        input[type="file"] { margin-bottom: 15px; color: #333; }
+        #status { font-size: 13px; color: #009900; margin-top: 5px; font-weight: bold; }
+        .controls { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        .checkbox-item { margin-bottom: 8px; display: block; }
+        .legend { margin-top: 15px; font-size: 12px; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+    </style>
+</head>
+<body>
+
+<div id="ui-layer">
+    <h1>Infra Algebra Visualizer</h1>
+    <div class="instructions">
+        Select <b>layer0.json</b> and <b>layer1.json</b> to visualize.<br>
+        (Ctrl+Click to select multiple files)
+    </div>
+    <input type="file" id="fileInput" multiple accept=".json">
+    <div id="status">Waiting for files...</div>
+    
+    <div class="controls">
+        <b>Layers Visibility:</b>
+        <label class="checkbox-item"><input type="checkbox" id="chkL0" checked> Layer 0 (Physical)</label>
+        <label class="checkbox-item"><input type="checkbox" id="chkL1" checked> Layer 1 (OS/Software)</label>
+    </div>
+
+    <div class="legend">
+        <b>Legend:</b>
+        <div class="legend-item"><div class="dot" style="background: #999;"></div>Rack (Layer 0)</div>
+        <div class="legend-item"><div class="dot" style="background: #0077cc;"></div>Machine/Server (Layer 0)</div>
+        <div class="legend-item"><div class="dot" style="background: #00cc66;"></div>Switch (Layer 0)</div>
+        <div class="legend-item"><div class="dot" style="background: #ff9900;"></div>OS/Host (Layer 1)</div>
+    </div>
+</div>
+
+<div id="graph"></div>
+
+<script>
+    if (typeof ForceGraph3D === 'undefined') {
+        alert("Error: 3D Force Graph library failed to load. Please check your internet connection.");
+    }
+
+    const Graph = ForceGraph3D()
+        (document.getElementById('graph'))
+        .backgroundColor('#ffffff')
+        .nodeLabel('tooltip')
+        .nodeColor('color')
+        .nodeVal('val')
+        .linkWidth('width')
+        .linkColor('color')
+        .linkOpacity(0.5)
+        .nodeThreeObject(node => {
+            const group = new THREE.Group();
+            
+            // Draw the node geometry (Sphere/Box)
+            let geometry;
+            let material = new THREE.MeshLambertMaterial({ color: node.color });
+            
+            if (node.group === 'rack') {
+                geometry = new THREE.BoxGeometry(node.val, node.val, node.val);
+                material.transparent = true;
+                material.opacity = 0.3;
+            } else if (node.group === 'machine' || node.group === 'switch') {
+                geometry = new THREE.BoxGeometry(node.val, node.val/2, node.val);
+            } else {
+                geometry = new THREE.SphereGeometry(node.val/2);
+            }
+            const mesh = new THREE.Mesh(geometry, material);
+            group.add(mesh);
+
+            // Add Text Label
+            const sprite = createTextSprite(node.name, { fontsize: 32, color: node.group === 'rack' ? '#666' : '#000' });
+            // Scale sprite to be visible but proportional
+            const scale = 8;
+            sprite.scale.set(scale * (sprite.aspect || 2), scale, 1);
+            sprite.position.y = node.val + 5; 
+            group.add(sprite);
+
+            return group;
+        })
+        .onNodeClick(node => {
+            // Zoom to node
+            const distance = 150;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+            Graph.cameraPosition(
+                { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+                node, // lookAt ({ x, y, z })
+                3000  // ms transition duration
+            );
+        });
+
+    const fileInput = document.getElementById('fileInput');
+    const statusDiv = document.getElementById('status');
+    const chkL0 = document.getElementById('chkL0');
+    const chkL1 = document.getElementById('chkL1');
+
+    let fullNodes = [];
+    let fullLinks = [];
+    let layer0Data = null;
+    let layer1Data = null;
+
+    // Redraw when checkboxes change
+    chkL0.addEventListener('change', updateVisibility);
+    chkL1.addEventListener('change', updateVisibility);
+
+    fileInput.addEventListener('change', async (event) => {
+        const files = event.target.files;
+        if (files.length === 0) return;
+
+        statusDiv.innerText = "Parsing files...";
+        statusDiv.style.color = "#cc0";
+
+        for (let f of files) {
+            const text = await f.text();
+            try {
+                const json = JSON.parse(text);
+                if (json.datacenter) {
+                    layer0Data = json;
+                    console.log("Loaded Layer 0");
+                } else if (Array.isArray(json) && json.length > 0 && json[0].hostHardwareRef) {
+                    layer1Data = json;
+                    console.log("Loaded Layer 1");
+                }
+            } catch (e) {
+                console.error("Error parsing JSON", e);
+            }
+        }
+
+        if (layer0Data && layer1Data) {
+            statusDiv.innerText = "Rendering Visualization...";
+            statusDiv.style.color = "#009900";
+            buildGraph(layer0Data, layer1Data);
+        } else if (layer0Data) {
+            statusDiv.innerText = "Layer 0 Loaded. Need Layer 1.";
+        } else if (layer1Data) {
+            statusDiv.innerText = "Layer 1 Loaded. Need Layer 0.";
+        }
+    });
+
+    function buildGraph(l0, l1) {
+        fullNodes = [];
+        fullLinks = [];
+
+        // LAYER 0 HEIGHT
+        const Y_L0 = 0;
+        // LAYER 1 HEIGHT
+        const Y_L1 = 200;
+
+        // Process Layer 0 (Physical)
+        const racks = l0.datacenter.racks;
+        
+        // Datacenter Node (Center)
+        fullNodes.push({
+            id: 'DC',
+            name: l0.datacenter.name,
+            group: 'dc',
+            layer: 0,
+            color: '#333333',
+            val: 40,
+            fx: 0, fy: Y_L0, fz: 0, // Anchor DC center
+            tooltip: `Datacenter: ${l0.datacenter.name}<br>${l0.datacenter.location}`
+        });
+
+        racks.forEach((rack, rIndex) => {
+            const rackId = rack.id;
+            
+            // Rack Node
+            fullNodes.push({
+                id: rackId,
+                name: rackId,
+                group: 'rack',
+                layer: 0,
+                color: '#999999',
+                val: 30,
+                fy: Y_L0,
+                tooltip: `Rack: ${rackId}<br>Units: ${rack.totalUnits}`
+            });
+
+            fullLinks.push({ source: 'DC', target: rackId, color: '#ccc', width: 2, layer: 0 });
+
+            // Machines
+            if (rack.machines) {
+                rack.machines.forEach(m => {
+                    const dev = m.device;
+                    fullNodes.push({
+                        id: dev.serial,
+                        name: dev.model, // Label with Model
+                        group: 'machine',
+                        layer: 0,
+                        color: '#0077cc',
+                        val: 12,
+                        fy: Y_L0, // Stay on physical plane
+                        tooltip: `<b>${dev.serial}</b><br>${dev.vendor} ${dev.model}<br>CPUs: ${dev.cpuCores}`
+                    });
+                    fullLinks.push({ source: rackId, target: dev.serial, color: '#99ccff', width: 1, layer: 0 });
+                });
+            }
+
+            // Switches
+            if (rack.switches) {
+                rack.switches.forEach(s => {
+                    const dev = s.device;
+                    fullNodes.push({
+                        id: dev.serial,
+                        name: dev.serial,
+                        group: 'switch',
+                        layer: 0,
+                        color: '#00cc66',
+                        val: 12,
+                        fy: Y_L0,
+                        tooltip: `<b>Switch: ${dev.serial}</b><br>${dev.vendor}<br>Ports: ${dev.totalPorts}`
+                    });
+                    fullLinks.push({ source: rackId, target: dev.serial, color: '#99ffcc', width: 1, layer: 0 });
+                });
+            }
+        });
+
+        // Process Layer 1 (OS/Software)
+        l1.forEach(host => {
+            const hwRef = host.hostHardwareRef;
+            
+            // Create Host Node
+            fullNodes.push({
+                id: host.hostId,
+                name: host.hostId, // Label with Hostname
+                group: 'host',
+                layer: 1,
+                color: '#ff9900',
+                val: 15,
+                fy: Y_L1, // Float above
+                tooltip: `<b>${host.hostId}</b><br>OS: ${host.hostOs.type}<br>Role: ${host.hostRole}<br>State: ${host.hostState}`
+            });
+
+            // Link to Hardware (Vertical Link)
+            if (fullNodes.find(n => n.id === hwRef)) {
+                fullLinks.push({
+                    source: host.hostId,
+                    target: hwRef,
+                    color: 'rgba(0, 0, 0, 0.2)', // Darker link for white background
+                    width: 1,
+                    particles: 2,
+                    particleColor: '#ffaa00',
+                    layer: 'inter'
+                });
+            }
+        });
+
+        updateVisibility();
+        
+        // Force settings
+        Graph.d3Force('link').distance(link => {
+            if (link.source.group === 'host' || link.target.group === 'host') return 200; 
+            return 80; // Spread out more
+        });
+        Graph.d3Force('charge').strength(-150); // Less repulsion to keep it tighter but structured
+    }
+
+    function updateVisibility() {
+        const showL0 = chkL0.checked;
+        const showL1 = chkL1.checked;
+
+        const visibleNodes = fullNodes.filter(n => {
+            if (n.group === 'dc') return true; // Always show DC center? Or only if L0?
+            if (n.layer === 0) return showL0;
+            if (n.layer === 1) return showL1;
+            return true;
+        });
+
+        const visibleLinks = fullLinks.filter(l => {
+            // Check if source and target are visible (simplified check by layer)
+            // Ideally we check if endpoints are in visibleNodes
+            const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+            const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+            
+            const sourceVisible = visibleNodes.find(n => n.id === sourceId);
+            const targetVisible = visibleNodes.find(n => n.id === targetId);
+            
+            return sourceVisible && targetVisible;
+        });
+
+        Graph.graphData({ nodes: visibleNodes, links: visibleLinks });
+    }
+
+    // Custom Text Sprite Helper to avoid external dependencies
+    function createTextSprite(message, opts) {
+        opts = opts || {};
+        const fontsize = opts.fontsize || 24;
+        const fontface = opts.fontface || 'Arial';
+        const color = opts.color || '#000000';
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        // Measure text size
+        context.font = fontsize + "px " + fontface;
+        const metrics = context.measureText(message);
+        const textWidth = metrics.width;
+        
+        // Resize canvas to fit text (power of 2 is better for textures but not strictly required for CanvasTexture)
+        canvas.width = textWidth + 10;
+        canvas.height = fontsize + 10;
+        
+        // Draw text
+        context.font = "bold " + fontsize + "px " + fontface;
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(message, canvas.width / 2, canvas.height / 2);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        
+        // Store aspect ratio for scaling later
+        sprite.aspect = canvas.width / canvas.height;
+        
+        return sprite;
+    }
+
+</script>
+</body>
+</html>

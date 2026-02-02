@@ -1,0 +1,271 @@
+[
+  {
+    "hostId": "controller-01.dc-west.local",
+    "hostHardwareRef": "SRV-CTRL-01",
+    "hostOs": {
+      "type": "Linux",
+      "distro": "Ubuntu"
+    },
+    "hostKernelVersion": "5.4.0-100-generic",
+    "hostState": "Active",
+    "hostInterfaces": [
+      {
+        "ifName": "bond0",
+        "ifIpAddress": "10.10.1.11/24",
+        "ifMacRef": "00:11:22:33:44:01",
+        "ifIsUp": true
+      },
+      {
+        "ifName": "eth1",
+        "ifIpAddress": "192.168.100.11/24",
+        "ifMacRef": "00:11:22:33:44:02",
+        "ifIsUp": true
+      }
+    ],
+    "hostProcesses": [
+      {
+        "procPid": 101,
+        "procName": "systemd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 1205,
+        "procName": "sshd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 2001,
+        "procName": "keystone-api",
+        "procType": "OpenStackService",
+        "procUser": "keystone",
+        "procState": "Running"
+      },
+      {
+        "procPid": 2002,
+        "procName": "nova-api",
+        "procType": "OpenStackService",
+        "procUser": "nova",
+        "procState": "Running"
+      },
+      {
+        "procPid": 2003,
+        "procName": "neutron-server",
+        "procType": "OpenStackService",
+        "procUser": "neutron",
+        "procState": "Running"
+      }
+    ],
+    "hostRole": "ControllerNode"
+  },
+  {
+    "hostId": "controller-02.dc-west.local",
+    "hostHardwareRef": "SRV-CTRL-02",
+    "hostOs": {
+      "type": "Linux",
+      "distro": "Ubuntu"
+    },
+    "hostKernelVersion": "5.4.0-100-generic",
+    "hostState": "Active",
+    "hostInterfaces": [
+      {
+        "ifName": "bond0",
+        "ifIpAddress": "10.10.1.12/24",
+        "ifMacRef": "00:11:22:33:44:03",
+        "ifIsUp": true
+      },
+      {
+        "ifName": "eth1",
+        "ifIpAddress": "192.168.100.12/24",
+        "ifMacRef": "00:11:22:33:44:04",
+        "ifIsUp": true
+      }
+    ],
+    "hostProcesses": [
+      {
+        "procPid": 101,
+        "procName": "systemd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 2001,
+        "procName": "keystone-api",
+        "procType": "OpenStackService",
+        "procUser": "keystone",
+        "procState": "Running"
+      },
+      {
+        "procPid": 2002,
+        "procName": "nova-api",
+        "procType": "OpenStackService",
+        "procUser": "nova",
+        "procState": "Running"
+      },
+      {
+        "procPid": 2003,
+        "procName": "neutron-server",
+        "procType": "OpenStackService",
+        "procUser": "neutron",
+        "procState": "Running"
+      }
+    ],
+    "hostRole": "ControllerNode"
+  },
+  {
+    "hostId": "compute-01.dc-west.local",
+    "hostHardwareRef": "SRV-COMP-01",
+    "hostOs": {
+      "type": "Linux",
+      "distro": "CentOS"
+    },
+    "hostKernelVersion": "4.18.0-348.el8.x86_64",
+    "hostState": "Active",
+    "hostInterfaces": [
+      {
+        "ifName": "bond0",
+        "ifIpAddress": "10.10.2.21/24",
+        "ifMacRef": "00:11:22:33:55:01",
+        "ifIsUp": true
+      },
+      {
+        "ifName": "br-ex",
+        "ifIpAddress": "0.0.0.0",
+        "ifMacRef": "00:11:22:33:55:02",
+        "ifIsUp": true
+      }
+    ],
+    "hostProcesses": [
+      {
+        "procPid": 1,
+        "procName": "systemd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 4050,
+        "procName": "nova-compute",
+        "procType": "OpenStackService",
+        "procUser": "nova",
+        "procState": "Running"
+      },
+      {
+        "procPid": 4060,
+        "procName": "ovs-vswitchd",
+        "procType": "NetworkService",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 4070,
+        "procName": "libvirtd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      }
+    ],
+    "hostRole": "ComputeNode"
+  },
+  {
+    "hostId": "compute-02.dc-west.local",
+    "hostHardwareRef": "SRV-COMP-02",
+    "hostOs": {
+      "type": "Linux",
+      "distro": "CentOS"
+    },
+    "hostKernelVersion": "4.18.0-348.el8.x86_64",
+    "hostState": "Active",
+    "hostInterfaces": [
+      {
+        "ifName": "bond0",
+        "ifIpAddress": "10.10.2.22/24",
+        "ifMacRef": "00:11:22:33:55:03",
+        "ifIsUp": true
+      },
+      {
+        "ifName": "br-ex",
+        "ifIpAddress": "0.0.0.0",
+        "ifMacRef": "00:11:22:33:55:04",
+        "ifIsUp": true
+      }
+    ],
+    "hostProcesses": [
+      {
+        "procPid": 1,
+        "procName": "systemd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 4050,
+        "procName": "nova-compute",
+        "procType": "OpenStackService",
+        "procUser": "nova",
+        "procState": "Running"
+      },
+      {
+        "procPid": 4060,
+        "procName": "ovs-vswitchd",
+        "procType": "NetworkService",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 4070,
+        "procName": "libvirtd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      }
+    ],
+    "hostRole": "ComputeNode"
+  },
+  {
+    "hostId": "storage-01.dc-west.local",
+    "hostHardwareRef": "SRV-STOR-01",
+    "hostOs": {
+      "type": "Linux",
+      "distro": "RHEL"
+    },
+    "hostKernelVersion": "4.18.0-305.el8.x86_64",
+    "hostState": "Active",
+    "hostInterfaces": [
+      {
+        "ifName": "p1p1",
+        "ifIpAddress": "10.10.3.31/24",
+        "ifMacRef": "00:11:22:33:66:01",
+        "ifIsUp": true
+      }
+    ],
+    "hostProcesses": [
+      {
+        "procPid": 1,
+        "procName": "systemd",
+        "procType": "SystemDaemon",
+        "procUser": "root",
+        "procState": "Running"
+      },
+      {
+        "procPid": 5001,
+        "procName": "ceph-osd",
+        "procType": "StorageService",
+        "procUser": "ceph",
+        "procState": "Running"
+      },
+      {
+        "procPid": 5002,
+        "procName": "ceph-mon",
+        "procType": "StorageService",
+        "procUser": "ceph",
+        "procState": "Running"
+      }
+    ],
+    "hostRole": "StorageNode"
+  }
+]

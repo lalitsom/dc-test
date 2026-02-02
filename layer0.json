@@ -1,0 +1,249 @@
+{
+  "datacenter": {
+    "name": "DC-West-01",
+    "location": "in-blr",
+    "totalPowerCapacity": 1000000,
+    "isps": [
+      {
+        "name": "Level3",
+        "bandwidthMbps": 100000,
+        "demarcationPoint": "RACK-01-U42"
+      },
+      {
+        "name": "Cogent",
+        "bandwidthMbps": 100000,
+        "demarcationPoint": "RACK-01-U41"
+      }
+    ],
+    "racks": [
+      {
+        "id": "RACK-01",
+        "totalUnits": 42,
+        "pdus": [
+          {
+            "serial": "PDU-R1-A",
+            "maxWatts": 12000,
+            "sockets": 24
+          },
+          {
+            "serial": "PDU-R1-B",
+            "maxWatts": 12000,
+            "sockets": 24
+          }
+        ],
+        "switches": [
+          {
+            "slotIndex": 42,
+            "device": {
+              "serial": "SW-SPINE-01",
+              "vendor": "Cisco",
+              "totalPorts": 32,
+              "uplinkSpeed": 100000,
+              "powerDraw": 550
+            }
+          },
+          {
+            "slotIndex": 41,
+            "device": {
+              "serial": "SW-SPINE-02",
+              "vendor": "Cisco",
+              "totalPorts": 32,
+              "uplinkSpeed": 100000,
+              "powerDraw": 550
+            }
+          },
+          {
+            "slotIndex": 40,
+            "device": {
+              "serial": "SW-LEAF-R1-01",
+              "vendor": "Cisco",
+              "totalPorts": 54,
+              "uplinkSpeed": 100000,
+              "powerDraw": 350
+            }
+          },
+          {
+            "slotIndex": 39,
+            "device": {
+              "serial": "SW-LEAF-R1-02",
+              "vendor": "Cisco",
+              "totalPorts": 54,
+              "uplinkSpeed": 100000,
+              "powerDraw": 350
+            }
+          }
+        ],
+        "machines": [
+          {
+            "slotIndex": 10,
+            "device": {
+              "serial": "SRV-CTRL-01",
+              "vendor": "Dell",
+              "model": "PowerEdge R650",
+              "cpuCores": 32,
+              "ramGB": 128,
+              "heightU": 1,
+              "psus": [
+                { "serial": "PSU-C1-1", "maxWatts": 800, "efficient": 0.94 },
+                { "serial": "PSU-C1-2", "maxWatts": 800, "efficient": 0.94 }
+              ],
+              "disks": [
+                { "serial": "DISK-C1-1", "vendor": "Samsung", "type": "SSD", "capacityGB": 960 },
+                { "serial": "DISK-C1-2", "vendor": "Samsung", "type": "SSD", "capacityGB": 960 }
+              ],
+              "nics": [
+                { "macAddress": "00:11:22:33:44:01", "speedMbps": 25000, "type": "SFP_Plus" },
+                { "macAddress": "00:11:22:33:44:02", "speedMbps": 25000, "type": "SFP_Plus" }
+              ]
+            }
+          },
+          {
+            "slotIndex": 11,
+            "device": {
+              "serial": "SRV-CTRL-02",
+              "vendor": "Dell",
+              "model": "PowerEdge R650",
+              "cpuCores": 32,
+              "ramGB": 128,
+              "heightU": 1,
+              "psus": [
+                { "serial": "PSU-C2-1", "maxWatts": 800, "efficient": 0.94 },
+                { "serial": "PSU-C2-2", "maxWatts": 800, "efficient": 0.94 }
+              ],
+              "disks": [
+                { "serial": "DISK-C2-1", "vendor": "Samsung", "type": "SSD", "capacityGB": 960 },
+                { "serial": "DISK-C2-2", "vendor": "Samsung", "type": "SSD", "capacityGB": 960 }
+              ],
+              "nics": [
+                { "macAddress": "00:11:22:33:44:03", "speedMbps": 25000, "type": "SFP_Plus" },
+                { "macAddress": "00:11:22:33:44:04", "speedMbps": 25000, "type": "SFP_Plus" }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "RACK-02",
+        "totalUnits": 42,
+        "pdus": [
+          { "serial": "PDU-R2-A", "maxWatts": 12000, "sockets": 24 },
+          { "serial": "PDU-R2-B", "maxWatts": 12000, "sockets": 24 }
+        ],
+        "switches": [
+          {
+            "slotIndex": 42,
+            "device": {
+              "serial": "SW-LEAF-R2-01",
+              "vendor": "Arista",
+              "totalPorts": 48,
+              "uplinkSpeed": 100000,
+              "powerDraw": 300
+            }
+          },
+          {
+            "slotIndex": 41,
+            "device": {
+              "serial": "SW-LEAF-R2-02",
+              "vendor": "Arista",
+              "totalPorts": 48,
+              "uplinkSpeed": 100000,
+              "powerDraw": 300
+            }
+          }
+        ],
+        "machines": [
+          {
+            "slotIndex": 1,
+            "device": {
+              "serial": "SRV-COMP-01",
+              "vendor": "HP",
+              "model": "ProLiant DL360",
+              "cpuCores": 64,
+              "ramGB": 512,
+              "heightU": 1,
+              "psus": [
+                { "serial": "PSU-CMP1-1", "maxWatts": 1000, "efficient": 0.96 },
+                { "serial": "PSU-CMP1-2", "maxWatts": 1000, "efficient": 0.96 }
+              ],
+              "disks": [
+                { "serial": "DISK-CMP1-1", "vendor": "Intel", "type": "NVMe", "capacityGB": 2048 }
+              ],
+              "nics": [
+                { "macAddress": "00:11:22:33:55:01", "speedMbps": 25000, "type": "SFP_Plus" },
+                { "macAddress": "00:11:22:33:55:02", "speedMbps": 25000, "type": "SFP_Plus" }
+              ]
+            }
+          },
+          {
+            "slotIndex": 2,
+            "device": {
+              "serial": "SRV-COMP-02",
+              "vendor": "HP",
+              "model": "ProLiant DL360",
+              "cpuCores": 64,
+              "ramGB": 512,
+              "heightU": 1,
+              "psus": [
+                { "serial": "PSU-CMP2-1", "maxWatts": 1000, "efficient": 0.96 },
+                { "serial": "PSU-CMP2-2", "maxWatts": 1000, "efficient": 0.96 }
+              ],
+              "disks": [
+                { "serial": "DISK-CMP2-1", "vendor": "Intel", "type": "NVMe", "capacityGB": 2048 }
+              ],
+              "nics": [
+                { "macAddress": "00:11:22:33:55:03", "speedMbps": 25000, "type": "SFP_Plus" },
+                { "macAddress": "00:11:22:33:55:04", "speedMbps": 25000, "type": "SFP_Plus" }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "RACK-03",
+        "totalUnits": 42,
+        "pdus": [
+          { "serial": "PDU-R3-A", "maxWatts": 12000, "sockets": 24 },
+          { "serial": "PDU-R3-B", "maxWatts": 12000, "sockets": 24 }
+        ],
+        "switches": [
+          {
+            "slotIndex": 42,
+            "device": {
+              "serial": "SW-LEAF-R3-01",
+              "vendor": "Dell",
+              "totalPorts": 48,
+              "uplinkSpeed": 40000,
+              "powerDraw": 250
+            }
+          }
+        ],
+        "machines": [
+          {
+            "slotIndex": 1,
+            "device": {
+              "serial": "SRV-STOR-01",
+              "vendor": "Supermicro",
+              "model": "StorageSuperServer",
+              "cpuCores": 16,
+              "ramGB": 64,
+              "heightU": 2,
+              "psus": [
+                { "serial": "PSU-STR1-1", "maxWatts": 1200, "efficient": 0.90 },
+                { "serial": "PSU-STR1-2", "maxWatts": 1200, "efficient": 0.90 }
+              ],
+              "disks": [
+                { "serial": "DISK-STR1-1", "vendor": "Seagate", "type": "HDD", "capacityGB": 10000 },
+                { "serial": "DISK-STR1-2", "vendor": "Seagate", "type": "HDD", "capacityGB": 10000 },
+                { "serial": "DISK-STR1-3", "vendor": "Seagate", "type": "HDD", "capacityGB": 10000 },
+                { "serial": "DISK-STR1-4", "vendor": "Seagate", "type": "HDD", "capacityGB": 10000 }
+              ],
+              "nics": [
+                { "macAddress": "00:11:22:33:66:01", "speedMbps": 10000, "type": "SFP_Plus" }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

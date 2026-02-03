@@ -1,0 +1,12 @@
+layer:
+    dc:
+        name: "blr-nextgen"
+        racks:
+            rack1:
+                
+        isps: airtel_isp, jio_isp
+        links: 
+
+
+
+rack1:

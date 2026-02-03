@@ -112,37 +112,69 @@ Here is how the Stratum DSL models your three specific examples using the Type S
 
 ## 5. The DSL Syntax (Draft)
 
-To make this "opinionated," the syntax should separate definition from declaration.
+To make this "opinionated," the syntax mirrors the strict typing of the underlying Haskell implementation (`layer0.hs` and `layer1.hs`). It combines the physical reality and logical bindings into a single, validated manifest.
 
 ```yaml
-# DEFINITION: The Laws of Physics for this World
-Domain: DataCenter
-  Layer: 0 (Physical)
-    Type: Rack
-      Capacity: [Space: 42U, Power: 5000W]
-    Type: Server
-      Requirement: [Space: 2U, Power: 500W]
-      Port: Ethernet
+# THE UNIFIED MANIFEST
+# The syntax enforces strict referential integrity between layers.
 
-  Layer: 1 (Logical)
-    Type: Hypervisor
-      BindsTo: Server
-      Capacity: [vCPU: 64, RAM: 128GB]
+# ==========================================
+# LAYER 0: THE PHYSICAL REALITY (Referencing layer0.hs)
+# ==========================================
+Datacenter: "Site-A"
+  Racks:
+    - Rack: "R1" (42U)
+      Mounted:
+        - Slot: 10
+          Machine: 
+            Serial: "SN-DELL-001"
+            Vendor: Dell
+            Specs: { Cores: 64, RAM: 128GB }
+            NICs: 
+              - { MAC: "AA:BB:CC:00:11:22", Speed: 10G }
+        
+        - Slot: 40
+          Switch:
+            Serial: "SN-CISCO-999"
+            Ports: 48
 
-# DECLARATION: The Actual State
-Manifest:
-  # The DSL Validator runs here first. 
-  # If this fails physics, it halts.
-  L0_Infrastructure:
-    - Rack: R1
-    - Server: S1 (in R1) # Validates: Does R1 have 2U space left?
-    - Server: S2 (in R1) # Validates: Does R1 have 5000 - 500 - 500 Power left?
-  
-  # The DSL Validator runs here second.
-  # If hardware is valid, does Software fit?
-  L1_Platform:
-    - Hypervisor: ESXi_01
-      Mount: S1 # Validates: Is S1 a valid Server object?
+  Cabling:
+    - Link: "Cable-X"
+      Type: FiberOM4
+      A: "SN-DELL-001.MAC.AA:BB:CC:00:11:22"
+      B: "SN-CISCO-999.PORT1"
+
+# ==========================================
+# LAYER 1: THE OS BINDING (Referencing layer1.hs)
+# ==========================================
+HostSystems:
+  - HostID: "prod-compute-01"
+    HardwareRef: "SN-DELL-001" # <--- STRICT BINDING TO LAYER 0
+    OS: Linux (Ubuntu)
+    
+    Interfaces:
+      - Name: "eth0"
+        IP: "192.168.1.10/24"
+        MacRef: "AA:BB:CC:00:11:22" # <--- Validates against Layer 0 NIC
+
+
+# ==========================================
+# LAYER 2: Software on OS (Referencing layer2.hs)
+# ==========================================
+HostSystems:
+  - HostRefID: "prod-compute-01"
+    Role: ComputeNode
+    
+    Processes:
+        - Name: "openstack-nova"
+          version: "22.0.0"
+        - Name: "postgresql"
+          version: "13"
+        ....
+    Interfaces:
+        - Name: "br-ex"
+        - IP: "192.168.0.42/24"
+
 ```
 
 ## 6. Conclusion
@@ -153,4 +185,4 @@ By treating "Data Center Management" as a stratified topology problem identical 
 *   **Simulation**: We can simulate a "Power Failure" in Layer 0 and deterministically predict which "Corporations" or "Cloud Apps" in Layer 2 will die.
 *   **Clarity**: The DSL serves as the single source of truth for the system's reality.
 
-This document defines the **Stratum Protocol** as the foundational logic for your domain-specific language.
+This document defines the **Stratum Protocol** as the foundational logic for our domain-specific language.

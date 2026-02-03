@@ -114,6 +114,8 @@ Here is how the Stratum DSL models your three specific examples using the Type S
 
 To make this "opinionated," the syntax mirrors the strict typing of the underlying Haskell implementation (`layer0` and `layer1`). It combines the physical reality and logical bindings into a single, validated manifest.
 
+### Example A: Data Center Management
+
 ```yaml
 # THE UNIFIED MANIFEST
 # The syntax enforces strict referential integrity between layers.
@@ -176,7 +178,7 @@ HostSystems:
         - IP: "192.168.0.42/24"
 
 ```
-
+### Example B: Urban Civilization
 
 ```yaml
 # ==========================================

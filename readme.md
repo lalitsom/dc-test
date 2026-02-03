@@ -178,9 +178,7 @@ HostSystems:
 ```
 
 
-```
-
-```
+```yaml
 # ==========================================
 # EXAMPLE B: URBAN CIVILIZATION (Isomorphic Structure)
 # ==========================================

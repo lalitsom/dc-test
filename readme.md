@@ -57,6 +57,7 @@ Here is how the Stratum DSL models your three specific examples using the Type S
     *   **Links**: CopperCable (Port A to Port B).
     *   **Capacities**: SpaceUnit (U), Power (Watts), ThermalDissipation (BTU).
     *   **Validation**:
+
     $$ \sum_{i} Server_i.Weight < Rack.MaxWeight $$
     $$ \forall Server, \exists Cable \text{ connecting } Server.NIC \to Switch.Port $$
 
@@ -84,6 +85,7 @@ Here is how the Stratum DSL models your three specific examples using the Type S
     *   **Binds To**: LandMass (Layer 0).
     *   **Constraint**: A Farm requires `ArableArea > 0` and `distance to River < 1km`.
     *   **Validation**:
+
     $$ \sum Humans.CaloricNeed < \sum Farms.CaloricOutput + \sum PreyBiomass $$
 
 *   **Layer 2: Society (The Economy)**

@@ -157,21 +157,3 @@ data Datacenter = Datacenter
     , dcCabling :: [Link] -- Physical wiring
     , dcTotalPowerCapacity :: Wattage
     } deriving (Show, Eq)
-
-{- 
-    INVARIANTS (Conceptual - to be enforced by validation logic)
-    
-    1. Datacenter:
-       - len racks > 0
-       - len dcIsps > 0
-       - total_power_draw(racks) <= dcTotalPowerCapacity
-
-    2. Rack:
-       - sum(machine.height + switch.height) <= rackTotalUnits
-       - All SlotIndices must be unique and within [1, rackTotalUnits]
-       - sum(machine.power) <= sum(pdu.maxWatts)
-
-    3. Machine:
-       - len disks > 0 (usually)
-       - len nics > 0
--}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Viewer - Layer0</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .tree-view {
+            font-family: monospace;
+            font-size: 14px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        details {
+            margin-left: 20px;
+        }
+        
+        summary {
+            cursor: pointer;
+            outline: none;
+            list-style: none;
+        }
+        
+        summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        summary::before {
+            content: '▶';
+            display: inline-block;
+            margin-right: 6px;
+            color: #666;
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }
+
+        details[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        summary:hover {
+            background-color: #f0f0f0;
+        }
+
+        .key {
+            color: #881391; /* Purple for keys */
+            font-weight: bold;
+        }
+
+        .string {
+            color: #268bd2; /* Blue for strings */
+        }
+
+        .number {
+            color: #d33682; /* Magenta for numbers */
+        }
+
+        .boolean {
+            color: #b58900; /* Yellow/Orange for booleans */
+        }
+        
+        .null {
+            color: #859900; /* Green for null */
+        }
+
+        .array-indicator, .object-indicator {
+            color: #999;
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON Hierarchy Viewer</h1>
+    <div id="container" class="tree-view">Loading...</div>
+
+    <script>
+        async function loadJSON() {
+            try {
+                const response = await fetch('layer0.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const container = document.getElementById('container');
+                container.innerHTML = ''; // Clear loading text
+                container.appendChild(createTree(data, 'root'));
+            } catch (error) {
+                let msg = error.message;
+                if (window.location.protocol === 'file:') {
+                    msg += '<br><br><strong>Note:</strong> Browsers often block fetching local files (CORS).<br>Try running: <code>python3 -m http.server</code> and open <code>http://localhost:8000/jsonview.html</code>';
+                }
+                document.getElementById('container').innerHTML = `<div class="error">Error loading JSON: ${msg}</div>`;
+                console.error('Error:', error);
+            }
+        }
+
+        function createTree(data, keyName = null) {
+            // Check if data is a primitive
+            if (data === null) {
+                return createLeaf(keyName, 'null', 'null');
+            }
+            if (typeof data === 'string') {
+                return createLeaf(keyName, `"${data}"`, 'string');
+            }
+            if (typeof data === 'number') {
+                return createLeaf(keyName, data, 'number');
+            }
+            if (typeof data === 'boolean') {
+                return createLeaf(keyName, data, 'boolean');
+            }
+
+            // It's an object or array
+            const isArray = Array.isArray(data);
+            const details = document.createElement('details');
+            // Expand root by default
+            if (keyName === 'root') details.open = true;
+
+            const summary = document.createElement('summary');
+            
+            let labelText = '';
+            if (keyName && keyName !== 'root') {
+                labelText += `<span class="key">${keyName}</span>: `;
+            }
+            
+            // Add indicator for object/array size
+            const size = isArray ? data.length : Object.keys(data).length;
+            const typeLabel = isArray ? `Array[${size}]` : `Object{${size}}`;
+            labelText += `<span class="${isArray ? 'array-indicator' : 'object-indicator'}">${typeLabel}</span>`;
+            
+            summary.innerHTML = labelText;
+            details.appendChild(summary);
+
+            // Iterate over children
+            const keys = Object.keys(data);
+            keys.forEach(key => {
+                // Determine if the child is a primitive or not to decide nesting
+                // But createTree handles the recursion and type checking
+                details.appendChild(createTree(data[key], key));
+            });
+
+            return details;
+        }
+
+        function createLeaf(key, value, typeClass) {
+            const div = document.createElement('div');
+            div.style.marginLeft = '20px'; // Indent leaves to align with expanded details content
+            
+            let content = '';
+            if (key) {
+                content += `<span class="key">${key}</span>: `;
+            }
+            content += `<span class="${typeClass}">${value}</span>`;
+            
+            div.innerHTML = content;
+            return div;
+        }
+
+        // Initialize
+        loadJSON();
+    </script>
+</body>
+</html>

@@ -1,164 +1,156 @@
-# Infra-DSL: A Denotational Language for Infrastructure
+# The Stratum Protocol: A DSL for Hierarchical System Modeling
 
-Infrastructure is not a sequence of commands. It is a constrained mathematical object.
+This is a fascinating architectural challenge. You are essentially trying to define a Unified Theory of System State. You want a DSL (Domain Specific Language) that creates a strict Stratified Ontology—a way of describing the world where complexity emerges from the rigid interaction of simpler, lower-level components.
 
-## Motivation
+Here is a proposal for your DSL, written as a high-level technical whitepaper or manifesto. It defines the philosophy, the strict boundaries, the type system, and applies it to your three distinct domains (Data Center, Urban Planning, and Biology).
 
-Most infrastructure tools treat infrastructure as procedures: scripts that mutate reality step by step.
+## 1. Abstract
 
-This project starts from a different premise:
-> Infrastructure is a state space, not a program.
+Complex systems—whether digital, biological, or societal—fail not because of a lack of components, but due to a lack of structural integrity in their dependencies. We propose the **Stratum Protocol**, a strictly typed DSL designed to model systems as a series of immutable, unidirectional layers. This language enforces a rule where **Layer $N$** provides the physical reality for **Layer $N+1$**, while remaining agnostic to the existence of **Layer $N+1$**.
 
-A correct infrastructure system should therefore be:
-- Describable without execution
-- Validatable without deployment
-- Reasonable using algebra, not logs
+## 2. Core Philosophy & Axioms
 
-This repository explores a domain-specific language (DSL) for infrastructure whose semantics are defined mathematically before any syntax, planner, or executor exists.
+To ensure the DSL is expressive enough for a Data Center yet abstract enough for Biology, we define three axioms:
 
-## Core Philosophy
+### Axiom I: The Law of Agnosticism
+**Lower layers are blind.**
 
-The design follows three non-negotiable principles:
-1. Semantics precede syntax
-2. Invalid states should be unrepresentable or unreachable
-3. Execution is a compilation artifact, not the language
+Layer 0 (Physical) does not know that Layer 1 (OS) exists. A server rack does not care if it hosts Linux or Windows; it only cares about power and weight.
 
-If a concept cannot be stated as a function, predicate, or relation, it does not belong in the core.
+*   **Validation Rule**: A type definition in Layer $N$ cannot reference a type in Layer $N+1$.
 
-## Formal Model
+### Axiom II: The Law of Dependency
+**Upper layers are parasitic.**
 
-The DSL is defined as a mathematical structure: `(S, V, A, apply)`
+Layer 1 cannot exist without a specific, validated state in Layer 0. A "Virtual Machine" (L2) cannot be instantiated unless a "Hypervisor" (L1) has validated a "CPU Core" (L0).
 
-Where:
+*   **Validation Rule**: Every object in Layer $N (>0)$ must adhere to a `binds_to` contract with an object in Layer $N-1$.
 
-### 1. State Space (`S`)
-`S` = All representable infrastructure states
+### Axiom III: The Law of Finite Capacity
+**Abstraction does not create resources; it consumes them.**
 
-A state is pure data:
-- Machines
-- Networks
-- Volumes
-- Relations between them
+Every layer introduces overhead. The sum of requirements at Layer $N$ can never exceed the provisioned capacity of Layer $N-1$.
 
-There is no behavior in the model.
+## 3. The Type System
 
-### 2. Valid States (`V ⊆ S`)
-`V = { s ∈ S | valid(s) }`
+To make this DSL universal, we cannot use terms like "Server" or "City" in the core language. Instead, we define **Archetypes**.
 
-Validity is defined by invariants, e.g.:
-- Every machine references an existing network
-- A volume is attached to at most one machine
-- No dangling references exist
+### 3.1. The Primitives
+*   **Substrate (The Context)**: Defines the environment boundaries (e.g., A single Data Center, A Petri Dish, An Island).
+*   **Node (The Actor)**: A discrete entity exists in a layer (e.g., A Server, A Cell, A Human).
+*   **Link (The Horizontal Bond)**: A connection between Nodes in the same layer (e.g., Cabling, Chemical Bond, Social Tie).
 
-These invariants define the geometry of the state space.
+### 3.2. The Properties (Interface)
+*   **Capacity (Output)**: What a Node provides to the layer above (e.g., Watts, CPU Cycles, Caloric Energy).
+*   **Load (Input)**: What a Node consumes from the layer below.
+*   **Constraint (The Rule)**: Boolean logic determining validity (e.g., `dimensions.width < rack.width`).
 
-### 3. Actions (`A`)
-Actions are partial functions: `a: V ⇀ V`
+## 4. Implementation: Domain Modeling
 
-Key properties:
-- Actions may be undefined
-- If defined, they preserve invariants
-- Actions are not scripts; they are state transformations
+Here is how the Stratum DSL models your three specific examples using the Type System defined above.
 
-Examples:
-- `CreateMachine`
-- `CreateNetwork`
-- `AttachVolume`
+### Case Study A: The Data Center (Infrastructure)
+**Goal**: Ensure physical fit and logical connectivity.
 
-Actions are intentionally small and local.
+*   **Layer 0: The Physical (Hardware)**
+    *   **Nodes**: Rack, BladeServer, PDU (Power Distribution Unit).
+    *   **Links**: CopperCable (Port A to Port B).
+    *   **Capacities**: SpaceUnit (U), Power (Watts), ThermalDissipation (BTU).
+    *   **Validation**:
+        $$ \sum_{i} Server_i.Weight < Rack.MaxWeight $$
+        $$ \forall Server, \exists Cable \text{ connecting } Server.NIC \to Switch.Port $$
 
-### 4. Closure Property
-For all actions `a` and valid states `s`:
-`a(s) defined ⇒ a(s) ∈ V`
+*   **Layer 1: The Executive (Operating System)**
+    *   **Nodes**: Kernel, NetworkInterface, DiskPartition.
+    *   **Binds To**: BladeServer (Layer 0).
+    *   **Capacities**: SystemThreads, BlockStorage.
+    *   **Validation**: Does the BladeServer have a physical NIC to support the NetworkInterface requested by the OS?
 
-This is the infrastructure analogue of type safety:
-**Well-formed changes cannot produce invalid infrastructure.**
+*   **Layer 2: The Service (Cloud/App)**
+    *   **Nodes**: NovaInstance, NeutronNetwork, PostgresDB.
+    *   **Binds To**: Kernel (Layer 1).
+    *   **Validation**: The DSL checks if the OS (L1) has exposed enough generic SystemThreads to support the NovaInstance allocation.
 
-## Composition and Algebra
+### Case Study B: Urban Development (Maslow’s Hierarchy)
+**Goal**: Ensure survival needs are met before social structures form.
 
-Actions compose via function composition:
-`(a ∘ b)(s) = a(b(s))`
+*   **Layer 0: Nature (The Geography)**
+    *   **Nodes**: LandMass, River, Forest, Animal.
+    *   **Capacities**: ArableArea (Acres), WaterFlow (Liters/sec), PreyBiomass.
+    *   **Validation**: Is the geography physically consistent? (Rivers flow downhill).
 
-Properties:
-- Associative where defined
-- Partial
-- Not invertible in general
+*   **Layer 1: Survival (The Settlement)**
+    *   **Nodes**: Shelter, Farm, Hunter.
+    *   **Binds To**: LandMass (Layer 0).
+    *   **Constraint**: A Farm requires `ArableArea > 0` and `distance to River < 1km`.
+    *   **Validation**:
+        $$ \sum Humans.CaloricNeed < \sum Farms.CaloricOutput + \sum PreyBiomass $$
 
-This forms a partial algebra, not a group.
-Idempotence and commutativity are desirable, not assumed.
+*   **Layer 2: Society (The Economy)**
+    *   **Nodes**: Market, School, Corporation.
+    *   **Binds To**: Settlement (Layer 1).
+    *   **Constraint**: A Corporation requires a cluster of Humans (from L1) with Skill attributes. A Market requires connectivity (roads) between Shelters.
 
-## Declarative Semantics
+### Case Study C: Cellular Biology
+**Goal**: Emergence of life from non-life.
 
-Users do not write actions. They describe a desired state `s_d ∈ V`.
+*   **Layer 0: The Molecular (Chemistry)**
+    *   **Nodes**: Atom (C, H, O, N), Molecule (Amino Acid, Lipid).
+    *   **Links**: CovalentBond, IonicBond.
+    *   **Properties**: Electronegativity, Charge.
+    *   **Validation**: Rules of Valence electrons.
 
-A planner (outside the DSL core) computes:
-`plan(s_c, s_d) = [a_1, a_2, ..., a_n]`
+*   **Layer 1: The Cellular (Life)**
+    *   **Nodes**: Membrane, Mitochondria, Ribosome.
+    *   **Binds To**: Aggregates of Molecules (Layer 0).
+    *   **Validation**: A Membrane is valid only if formed by a phospholipid bilayer (L0 pattern) that creates a closed loop.
 
-Execution is merely:
-`a_n ∘ ... ∘ a_1(s_c)`
+*   **Layer 2: The Organism (Tissue)**
+    *   **Nodes**: MuscleTissue, Neuron, Organ.
+    *   **Binds To**: Cell clusters (Layer 1).
+    *   **Validation**: MuscleTissue requires specific energy input (ATP) from underlying Mitochondria (L1).
 
-The DSL itself is meaningful without planning or execution.
+## 5. The DSL Syntax (Draft)
 
-## Why Not a State Machine?
+To make this "opinionated," the syntax should separate definition from declaration.
 
-State machines are an implementation, not a foundation. This DSL is more naturally viewed as:
-- A constraint system
-- A graph rewrite system
-- A monotone transformation over a partial order
+```yaml
+# DEFINITION: The Laws of Physics for this World
+Domain: DataCenter
+  Layer: 0 (Physical)
+    Type: Rack
+      Capacity: [Space: 42U, Power: 5000W]
+    Type: Server
+      Requirement: [Space: 2U, Power: 500W]
+      Port: Ethernet
 
-State machines emerge only at execution time.
+  Layer: 1 (Logical)
+    Type: Hypervisor
+      BindsTo: Server
+      Capacity: [vCPU: 64, RAM: 128GB]
 
-## Implementation (Rust)
+# DECLARATION: The Actual State
+Manifest:
+  # The DSL Validator runs here first. 
+  # If this fails physics, it halts.
+  L0_Infrastructure:
+    - Rack: R1
+    - Server: S1 (in R1) # Validates: Does R1 have 2U space left?
+    - Server: S2 (in R1) # Validates: Does R1 have 5000 - 500 - 500 Power left?
+  
+  # The DSL Validator runs here second.
+  # If hardware is valid, does Software fit?
+  L1_Platform:
+    - Hypervisor: ESXi_01
+      Mount: S1 # Validates: Is S1 a valid Server object?
+```
 
-Rust is used deliberately:
-- Algebraic data types
-- Explicit partiality (`Option`)
-- No hidden side effects
-- No runtime mutation of global state
+## 6. Conclusion
 
-The code mirrors the math:
-- Models = structs
-- Invariants = predicates
-- Actions = pure functions
+By treating "Data Center Management" as a stratified topology problem identical to "Urban Planning" or "Biology," we gain robust validation.
 
-No parser, no YAML, no syntax bikeshedding.
+*   **Isolation**: Changes in Layer 2 (App config) never require re-validation of Layer 0 (Cabling).
+*   **Simulation**: We can simulate a "Power Failure" in Layer 0 and deterministically predict which "Corporations" or "Cloud Apps" in Layer 2 will die.
+*   **Clarity**: The DSL serves as the single source of truth for the system's reality.
 
-## What This Is Not
-
-- Not a configuration language
-- Not a scripting tool
-- Not a Terraform replacement
-- Not “infrastructure as code”
-
-It is **infrastructure as mathematics**.
-
-## Design Constraints
-
-- No hidden global state
-- No implicit ordering
-- No magic defaults
-- No execution logic in the core
-
-If something feels “convenient” but obscures semantics, it is rejected.
-
-## Roadmap (Derived, Not Assumed)
-
-Future layers—derived from the core, not baked in:
-- State diffing: `S × S → A*`
-- Planning as search
-- Policy vs hard invariants
-- Typed invariants using Rust’s type system
-- Optional surface syntax
-
-Each layer must preserve the core semantics.
-
-## Final Note
-
-This project is an experiment in taste.
-
-It asks:
-> What would infrastructure tools look like if designed by someone who cares about algebra, invariants, and meaning?
-
-If you find this uncomfortable or “over-theoretical”, that is intentional.
-
-**Beauty comes from restriction.**
+This document defines the **Stratum Protocol** as the foundational logic for your domain-specific language.

@@ -112,14 +112,14 @@ Here is how the Stratum DSL models your three specific examples using the Type S
 
 ## 5. The DSL Syntax (Draft)
 
-To make this "opinionated," the syntax mirrors the strict typing of the underlying Haskell implementation (`layer0.hs` and `layer1.hs`). It combines the physical reality and logical bindings into a single, validated manifest.
+To make this "opinionated," the syntax mirrors the strict typing of the underlying Haskell implementation (`layer0` and `layer1`). It combines the physical reality and logical bindings into a single, validated manifest.
 
 ```yaml
 # THE UNIFIED MANIFEST
 # The syntax enforces strict referential integrity between layers.
 
 # ==========================================
-# LAYER 0: THE PHYSICAL REALITY (Referencing layer0.hs)
+# LAYER 0: THE PHYSICAL REALITY (Referencing layer0)
 # ==========================================
 Datacenter: "Site-A"
   Racks:
@@ -145,7 +145,7 @@ Datacenter: "Site-A"
       B: "SN-CISCO-999.PORT1"
 
 # ==========================================
-# LAYER 1: THE OS BINDING (Referencing layer1.hs)
+# LAYER 1: THE OS BINDING (Referencing layer1)
 # ==========================================
 HostSystems:
   - HostID: "prod-compute-01"
@@ -159,7 +159,7 @@ HostSystems:
 
 
 # ==========================================
-# LAYER 2: Software on OS (Referencing layer2.hs)
+# LAYER 2: Software on OS (Referencing layer2)
 # ==========================================
 HostSystems:
   - HostRefID: "prod-compute-01"
@@ -174,6 +174,12 @@ HostSystems:
     Interfaces:
         - Name: "br-ex"
         - IP: "192.168.0.42/24"
+
+```
+
+
+```
+
 
 # ==========================================
 # EXAMPLE B: URBAN CIVILIZATION (Isomorphic Structure)

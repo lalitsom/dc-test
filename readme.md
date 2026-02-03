@@ -175,6 +175,38 @@ HostSystems:
         - Name: "br-ex"
         - IP: "192.168.0.42/24"
 
+# ==========================================
+# EXAMPLE B: URBAN CIVILIZATION (Isomorphic Structure)
+# ==========================================
+
+# LAYER 0: NATURE (The Geography)
+Geography: "Nile Valley"
+  Terrain:
+    - LandMass: "Plot-A" 
+      Type: Plains
+      ArableArea: 500 # Acres
+    
+    - River: "Blue Nile"
+      FlowRate: 1000 # L/s
+
+# LAYER 1: SETTLEMENT (Survival)
+Settlement: "Thebes"
+  Structures:
+    - Shelter: "Hovel-01"
+      LocationRef: "Plot-A" # <--- Binds to Layer 0
+    
+    - Farm: "WheatField-1"
+      LocationRef: "Plot-A"
+      WaterSourceRef: "Blue Nile" # <--- Validates: Distance < 1km
+
+# LAYER 2: SOCIETY (Economy)
+Economy:
+  - Market: "Grand Bazaar"
+    LocationRef: "Plot-A"
+    SupplyChain:
+      - Source: "WheatField-1" # <--- Binds to Layer 1
+        Quantity: 500
+
 ```
 
 ## 6. Conclusion

@@ -1,0 +1,198 @@
+// Layer 0: Physical Infrastructure - Redefined
+// Architecture: 2 ISPs, 1 Firewall, 2 Switches, 3 Servers
+// Connectivity: Redundant Data Plane, Single/Dual Management Plane
+
+Layer0 "NxtGen_DC_1" {
+    location: "Bangalore-East"
+    power_capacity: "1MW"
+    cooling: "500Tons"
+
+    // External Connectivity (ISPs)
+    ISP "ISP-Primary" {
+        provider: "Tata-Comm"
+        Port "handoff" { speed: "10G", type: "Singlemode-Fiber" }
+    }
+    ISP "ISP-Secondary" {
+        provider: "Airtel"
+        Port "handoff" { speed: "10G", type: "Singlemode-Fiber" }
+    }
+
+    Rack "R1" {
+        size: 42U
+        power_limit: "12kW"
+
+        // Security Hardware
+        Firewall "Edge-FW-01" {
+            position: 40U
+            size: 1U
+            model: "PaloAlto-PA-3200"
+
+            Port "eth1/1" { speed: "10G", type: "SFP+" } // Wan1
+            Port "eth1/2" { speed: "10G", type: "SFP+" } // Wan2
+            Port "eth1/3" { speed: "25G", type: "SFP28" } // Downlink to SW1
+            Port "eth1/4" { speed: "25G", type: "SFP28" } // Downlink to SW2
+            Port "mgmt"   { speed: "1G",  type: "RJ45" }
+        }
+
+        // Network Hardware (Top of Rack)
+        Switch "ToR-Switch-01" {
+            position: 42U
+            size: 1U
+            model: "Arista-7050QX"
+            role: "Leaf-Data-Mgmt"
+
+            // Uplinks from FW
+            Port "eth1/1" { speed: "25G" }
+            
+            // Downlinks to Servers (Data)
+            Port "eth1/10" { speed: "25G" } // Server 1
+            Port "eth1/11" { speed: "25G" } // Server 2
+            Port "eth1/12" { speed: "25G" } // Server 3
+
+            // Downlinks to Servers (Mgmt)
+            Port "eth1/40" { speed: "1G", type: "RJ45" } // Server 1 Mgmt
+            Port "eth1/41" { speed: "1G", type: "RJ45" } // Server 2 Mgmt
+            Port "eth1/42" { speed: "1G", type: "RJ45" } // Server 3 Mgmt
+        }
+
+        Switch "ToR-Switch-02" {
+            position: 41U
+            size: 1U
+            model: "Arista-7050QX"
+            role: "Leaf-Data"
+
+            // Uplinks from FW
+            Port "eth1/1" { speed: "25G" }
+
+            // Downlinks to Servers (Data - Redundant)
+            Port "eth1/10" { speed: "25G" } // Server 1
+            Port "eth1/11" { speed: "25G" } // Server 2
+            Port "eth1/12" { speed: "25G" } // Server 3
+        }
+
+        // Compute Hardware
+        Server "Server-01" {
+            position: 10U
+            size: 2U
+            model: "Dell-PowerEdge-R750"
+            
+            Port "nic1" { speed: "25G", type: "SFP28" } // Data
+            Port "nic2" { speed: "25G", type: "SFP28" } // Data
+            Port "ilo"  { speed: "1G",  type: "RJ45" }  // Mgmt
+        }
+        
+        Server "Server-02" {
+            position: 12U
+            size: 2U
+            model: "Dell-PowerEdge-R750"
+
+            Port "nic1" { speed: "25G", type: "SFP28" }
+            Port "nic2" { speed: "25G", type: "SFP28" }
+            Port "ilo"  { speed: "1G",  type: "RJ45" }
+        }
+
+        Server "Server-03" {
+            position: 14U
+            size: 2U
+            model: "Dell-PowerEdge-R750"
+
+            Port "nic1" { speed: "25G", type: "SFP28" }
+            Port "nic2" { speed: "25G", type: "SFP28" }
+            Port "ilo"  { speed: "1G",  type: "RJ45" }
+        }
+    }
+
+    Cabling {
+        // ISP to Firewall (WAN)
+        Link "Wan-01" {
+            end_a: "Meet-Me-Room.ISP-Primary.handoff"
+            end_b: "R1.Edge-FW-01.eth1/1"
+            speed: "10G"
+            type: "Fiber"
+            plane: "WAN"
+        }
+        Link "Wan-02" {
+            end_a: "Meet-Me-Room.ISP-Secondary.handoff"
+            end_b: "R1.Edge-FW-01.eth1/2"
+            speed: "10G"
+            type: "Fiber"
+            plane: "WAN"
+        }
+
+        // Firewall to Switches (Uplinks)
+        Link "Uplink-01" {
+            end_a: "R1.Edge-FW-01.eth1/3"
+            end_b: "R1.ToR-Switch-01.eth1/1"
+            speed: "25G"
+            type: "DAC"
+            plane: "Backbone"
+        }
+        Link "Uplink-02" {
+            end_a: "R1.Edge-FW-01.eth1/4"
+            end_b: "R1.ToR-Switch-02.eth1/1"
+            speed: "25G"
+            type: "DAC"
+            plane: "Backbone"
+        }
+
+        // Server 01 Connections
+        Link "S1-Data-A" {
+            end_a: "R1.Server-01.nic1"
+            end_b: "R1.ToR-Switch-01.eth1/10"
+            speed: "25G"
+            plane: "Data"
+        }
+        Link "S1-Data-B" {
+            end_a: "R1.Server-01.nic2"
+            end_b: "R1.ToR-Switch-02.eth1/10"
+            speed: "25G"
+            plane: "Data"
+        }
+        Link "S1-Mgmt" {
+            end_a: "R1.Server-01.ilo"
+            end_b: "R1.ToR-Switch-01.eth1/40"
+            speed: "1G"
+            plane: "Management"
+        }
+
+        // Server 02 Connections
+        Link "S2-Data-A" {
+            end_a: "R1.Server-02.nic1"
+            end_b: "R1.ToR-Switch-01.eth1/11"
+            speed: "25G"
+            plane: "Data"
+        }
+        Link "S2-Data-B" {
+            end_a: "R1.Server-02.nic2"
+            end_b: "R1.ToR-Switch-02.eth1/11"
+            speed: "25G"
+            plane: "Data"
+        }
+        Link "S2-Mgmt" {
+            end_a: "R1.Server-02.ilo"
+            end_b: "R1.ToR-Switch-01.eth1/41"
+            speed: "1G"
+            plane: "Management"
+        }
+        
+        // Server 03 Connections
+        Link "S3-Data-A" {
+            end_a: "R1.Server-03.nic1"
+            end_b: "R1.ToR-Switch-01.eth1/12"
+            speed: "25G"
+            plane: "Data"
+        }
+        Link "S3-Data-B" {
+            end_a: "R1.Server-03.nic2"
+            end_b: "R1.ToR-Switch-02.eth1/12"
+            speed: "25G"
+            plane: "Data"
+        }
+        Link "S3-Mgmt" {
+            end_a: "R1.Server-03.ilo"
+            end_b: "R1.ToR-Switch-01.eth1/42"
+            speed: "1G"
+            plane: "Management"
+        }
+    }
+}

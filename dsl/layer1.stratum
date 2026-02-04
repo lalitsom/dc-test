@@ -1,0 +1,53 @@
+// Layer 1: Logical Systems (The Operating System)
+// This file defines WHAT runs on the hardware.
+// It contains ONLY the OS definition and the exposure of Physical Interfaces.
+
+Layer1 "Nodes" {
+    
+    // Hypervisor / Compute Node Configuration
+    Host "Compute-Node-01" {
+        // The Binding Contract: This logical node inhabits Physical Blade-01
+        binds_to: "Layer0.NxtGen_DC_1.R1.Blade-01"
+        
+        os: "Ubuntu 24.04 LTS"
+        kernel_params: "hugepages=1024 intel_iommu=on"
+        
+        // Raw Physical Interfaces exposed to OS
+        // No IP addresses or bonds here, just the driver mapping.
+        
+        Interface "eno1" {
+            binds_to: "ilo" 
+            driver: "tg3"
+        }
+
+        Interface "eth1" {
+            binds_to: "nic1"
+            driver: "mlx5_core"
+        }
+
+        Interface "eth2" {
+            binds_to: "nic2"
+            driver: "mlx5_core"
+        }
+    }
+
+    // Switch Configuration
+    Host "Leaf-Switch-01" {
+        binds_to: "Layer0.NxtGen_DC_1.R1.ToR-Switch-01"
+        
+        os: "Arista EOS 4.28"
+        role: "Leaf"
+
+        Interface "Ethernet1/1" {
+            binds_to: "eth1/1"
+        }
+        
+        Interface "Ethernet1/2" {
+            binds_to: "eth1/2"
+        }
+        
+        Interface "Management0" {
+            binds_to: "mgmt0"
+        }
+    }
+}

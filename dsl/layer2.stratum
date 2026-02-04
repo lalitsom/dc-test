@@ -1,0 +1,89 @@
+// Layer 2: Service & Network Virtualization
+// This file defines the Software Defined Network (SDN), IP Schemas, and Application Processes.
+// It binds to Layer 1 (Logical Hosts).
+
+Layer2 "Software-Stack" {
+
+    // Compute Node Networking & Services
+    Node "Compute-Node-01" {
+        binds_to: "Layer1.Nodes.Compute-Node-01"
+
+        // Network Configuration
+        // Aggregating physical interfaces from Layer 1
+        Bond "bond0" {
+            members: ["eth1", "eth2"]
+            mode: "802.3ad"
+            hash_policy: "layer3+4"
+        }
+
+        // Management Network
+        Bridge "br-mgmt" {
+            port: "eno1"
+            ip: "192.168.10.11/24"
+            gateway: "192.168.10.1"
+        }
+
+        // Service VLANs on top of the bond
+        VLAN "vlan100" {
+            parent: "bond0"
+            tag: 100
+            ip: "10.0.100.11/24"
+            usage: "Internal-API"
+        }
+
+        VLAN "vlan200" {
+            parent: "bond0"
+            tag: 200
+            ip: "10.0.200.11/24"
+            usage: "Storage-Replication"
+        }
+
+        // Application Processes
+        Process "Nova-Compute" {
+            package: "nova-compute"
+            version: "23.0.0"
+            status: "active"
+        }
+
+        Process "Neutron-OVS-Agent" {
+            package: "neutron-openvswitch-agent"
+            version: "18.0.0"
+            config: "/etc/neutron/plugins/ml2/openvswitch_agent.ini"
+        }
+
+        Process "Prometheus-Node-Exporter" {
+            package: "prometheus-node-exporter"
+            port: 9100
+            status: "active"
+        }
+        
+        Process "Git-Service" {
+            package: "git-daemon"
+            version: "2.25.1"
+            path: "/srv/git"
+        }
+    }
+
+    // Switch Logical Configuration (SDN Layer)
+    Node "Leaf-Switch-01" {
+        binds_to: "Layer1.Nodes.Leaf-Switch-01"
+
+        // Configuring the physical ports defined in Layer 1
+        PortConfig "Ethernet1/1" {
+            description: "Uplink-to-Compute-01"
+            switchport_mode: "trunk"
+            allowed_vlans: [100, 200]
+            mtu: 9000
+        }
+
+        PortConfig "Management0" {
+            ip: "10.255.0.1/24"
+            vrf: "management"
+        }
+        
+        Process "SNMP-Agent" {
+            status: "active"
+            community: "public"
+        }
+    }
+}

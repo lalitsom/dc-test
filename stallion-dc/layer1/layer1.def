@@ -1,0 +1,85 @@
+control-node-1 {
+    hostname: "control-01.blr.stallion"
+    kernel: "5.15.0-101-generic"
+    
+    interfaces {
+        mgmt0: {
+            binds_to: "port2"
+            driver: "igb"
+            mtu: 1500
+        }
+        data0: {
+            binds_to: "port7"
+            driver: "mlx5_core"
+            mtu: 9000
+        }
+        data1: {
+            binds_to: "port8"
+            driver: "mlx5_core"
+            mtu: 9000
+        }
+    }
+
+    packages: [
+        "docker.io",
+        "kubelet",
+        "kubeadm",
+        "kubectl",
+        "ceph-common"
+    ]
+}
+
+worker-node-1 {
+    hostname: "worker-01.blr.stallion"
+    kernel: "5.15.0-101-generic"
+    
+    interfaces {
+        mgmt0: {
+            binds_to: "port2"
+            driver: "igb"
+            mtu: 1500
+        }
+    }
+    
+    packages: [
+        "docker.io",
+        "kubelet",
+        "kubeadm",
+        "kubectl"
+    ]
+}
+
+storage-node-1 {
+    hostname: "storage-01.blr.stallion"
+    kernel: "5.15.0-101-generic"
+    
+    interfaces {
+        data0: {
+            binds_to: "port2"
+            driver: "bnxt_en"
+            mtu: 9000
+        }
+    }
+    
+    packages: [
+        "ceph",
+        "ceph-osd",
+        "ceph-mon"
+    ]
+}
+
+edge-firewall {
+    os_version: "FortiOS 7.4.3"
+    management_access: ["ssh", "https"]
+    features: ["ngfw", "vpn", "sd-wan"]
+}
+
+core-switch {
+    os_version: "EOS 4.31.2F"
+    features: ["bgp", "evpn", "vxlan"]
+}
+
+mgmt-switch {
+    os_version: "RouterOS 7.14"
+    features: ["vlan", "switching"]
+}

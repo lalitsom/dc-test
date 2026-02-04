@@ -1,0 +1,50 @@
+fortinet_firewall {
+ model: ""
+}
+
+arista_switch {
+
+}
+
+microtik_switch {
+
+}
+
+gigabyte_server {
+
+}
+
+hp_server1 {
+ model: "HPE ProLiant DL385 Gen11"
+ port1: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:0f
+    }
+  port2: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:0e
+    }
+  cpu {}
+  memory {}
+  disk {}
+}
+
+
+hp_server1 {
+ model: "HPE ProLiant DL385 Gen11"
+ port1: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 60:7c:6f:73:79:08
+    }
+  port2: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 60:7c:6f:73:79:09
+    }
+  cpu {}
+  memory {}
+  disk {}
+}

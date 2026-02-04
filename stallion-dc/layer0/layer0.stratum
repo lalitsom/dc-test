@@ -1,0 +1,24 @@
+DC "blr-stallion" {
+
+    power {capacity_watts: 10000}
+
+    racks {
+        rack1: {
+            fortinet_firewall,
+            arista_switch, microtik_switch,
+            gigabyte_server, hp_server1, hp_server2
+            }
+    }
+
+    links {
+        link1: fortinet_firewall.port1 -> hp_server1.port2
+        link2: fortinet_firewall.port2 -> hp_server2.port2
+        link3: fortinet_firewall.port3 -> gigabyte_server.port2
+        link4: fortinet_firewall.port4 -> arista_switch.port2
+        link5: fortinet_firewall.port5 -> microtik_switch.port2
+
+        link6: arista_switch.port10 -> hp_server1.port7
+        link7: arista_switch.port11 -> hp_server1.port8
+    }
+}
+

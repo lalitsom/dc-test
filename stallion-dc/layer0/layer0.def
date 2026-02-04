@@ -1,17 +1,102 @@
 fortinet_firewall {
- model: ""
+ model: "Fortinet FortiGate 600F"
+ port1: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:a1
+    }
+ port2: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:a2
+    }
+ port3: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:a3
+    }
+ port4: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:a4
+    }
+ port5: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:a5
+    }
 }
 
 arista_switch {
-
+ model: "Arista 7050SX"
+ port2: {
+    type: rj45,
+    speed_mbps: 10000,
+    mac_address: 50:7c:6f:73:79:b2
+    }
+ port10: {
+    type: rj45,
+    speed_mbps: 10000,
+    mac_address: 50:7c:6f:73:79:ba
+    }
+ port11: {
+    type: rj45,
+    speed_mbps: 10000,
+    mac_address: 50:7c:6f:73:79:bb
+    }
 }
 
 microtik_switch {
-
+ model: "MikroTik CRS305"
+ port2: {
+    type: rj45,
+    speed_mbps: 1000,
+    mac_address: 50:7c:6f:73:79:c2
+    }
 }
 
 gigabyte_server {
-
+ model: "Giga Computing MZ73-LM0-000"
+ port2: {
+    type: rj45,
+    speed_mbps: 10000,
+    mac_address: 74:56:3c:8d:f0:b7
+    }
+  cpu {
+    model: "AMD EPYC 9554 64-Core Processor",
+    sockets: 2
+    }
+  memory {
+    size_mb: 460800,
+    type: "DDR5"
+    }
+  disk {
+    drive1: {
+        model: "EXPE4M1920GB",
+        size_bytes: 1920383410176,
+        type: "NVMe SSD"
+        }
+    drive2: {
+        model: "WDC WUH722016CL",
+        size_bytes: 16000900661248,
+        type: "HDD"
+        }
+    drive3: {
+        model: "ST30000NT011-3V2",
+        size_bytes: 30000346562560,
+        type: "HDD"
+        }
+    drive4: {
+        model: "ST30000NT011-3V2",
+        size_bytes: 30000346562560,
+        type: "HDD"
+        }
+    drive5: {
+        model: "WDC WUH722016CL",
+        size_bytes: 16000900661248,
+        type: "HDD"
+        }
+    }
 }
 
 hp_server1 {
@@ -26,25 +111,63 @@ hp_server1 {
     speed_mbps: 1000,
     mac_address: 50:7c:6f:73:79:0e
     }
-  cpu {}
-  memory {}
-  disk {}
+  port7: {
+    type: sfp28,
+    speed_mbps: 100000,
+    mac_address: 88:e9:a4:c7:81:48
+    }
+  port8: {
+    type: sfp28,
+    speed_mbps: 100000,
+    mac_address: 88:e9:a4:c7:81:49
+    }
+  cpu {
+    model: "AMD EPYC 9654 96-Core Processor",
+    sockets: 2
+    }
+  memory {
+    size_mb: 1048576,
+    type: "DDR5"
+    }
+  disk {
+    drive1: {
+        model: "HPE NS204i-u Gen11 Boot Controller",
+        size_bytes: 480036519936,
+        type: "SSD"
+        }
+    }
 }
 
-
-hp_server1 {
+hp_server2 {
  model: "HPE ProLiant DL385 Gen11"
  port1: {
     type: rj45,
     speed_mbps: 1000,
-    mac_address: 60:7c:6f:73:79:08
+    mac_address: 50:7c:6f:71:a1:87
     }
   port2: {
     type: rj45,
     speed_mbps: 1000,
-    mac_address: 60:7c:6f:73:79:09
+    mac_address: 50:7c:6f:71:a1:86
     }
-  cpu {}
-  memory {}
-  disk {}
+  cpu {
+    model: "AMD EPYC 9654 96-Core Processor",
+    sockets: 2
+    }
+  memory {
+    size_mb: 1048576,
+    type: "DDR5"
+    }
+  disk {
+    drive1: {
+        model: "HPE NS204i-u Gen11 Boot Controller",
+        size_bytes: 480036519936,
+        type: "SSD"
+        }
+    drive2: {
+        model: "WUS5EA1A1ESP5E3",
+        size_bytes: 15360950534144,
+        type: "NVMe SSD"
+        }
+    }
 }

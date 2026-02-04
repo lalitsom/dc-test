@@ -55,7 +55,7 @@ microtik_switch {
     }
 }
 
-gigabyte_server {
+gigabyte_server1 {
  model: "Giga Computing MZ73-LM0-000"
  port2: {
     type: rj45,
